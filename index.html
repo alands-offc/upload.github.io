@@ -54,6 +54,23 @@
             color: #6c757d;
             margin-top: 5px;
         }
+
+        .snake-loader {
+            display: none;
+        }
+
+        .snake-loader.active {
+            display: block;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(to right, #28a745, #28a745) no-repeat;
+            background-size: 0% 100%;
+            transition: background-size 0.4s;
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 
@@ -68,14 +85,16 @@
                 </div>
                 <span id="fileNameDisplay">No file chosen</span>
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Upload</button>
+            <button type="submit" class="btn btn-primary btn-block" id="uploadButton">Upload</button>
         </form>
+
+        <div class="snake-loader mt-3" id="snakeLoader"></div>
 
         <div class="progress mt-3">
             <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
 
-        <a id="fileLink" href="#" class="d-block mt-3">View file</a>
+        <a id="fileLink" href="#" class="d-block mt-3 hidden">View file</a>
 
         <div id="uploadResult" class="alert alert-success mt-3">
             Upload successful!
@@ -111,11 +130,17 @@
                 return;
             }
 
-            const chunkSize = 5 * 1024 * 1024; // 5MB per chunk
+            const uploadButton = document.getElementById('uploadButton');
+            const snakeLoader = document.getElementById('snakeLoader');
+            const progressBar = document.getElementById('progressBar');
+            const fileLink = document.getElementById('fileLink');
+
+            uploadButton.classList.add('hidden');
+            snakeLoader.classList.add('active');
+
+            const chunkSize = 1 * 1024 * 1024; // 1MB per chunk
             const totalChunks = Math.ceil(file.size / chunkSize);
             let currentChunkIndex = 0;
-
-            const progressBar = document.getElementById('progressBar');
 
             // Loop through chunks
             while (currentChunkIndex < totalChunks) {
@@ -137,26 +162,26 @@
                 const result = await response.json();
 
                 if (response.ok && currentChunkIndex === totalChunks - 1) {
-                    // File uploaded successfully
                     const fileId = result.fileId;
                     const filename = result.filename;
 
-                    // Update the file link
-                    const fileLink = document.getElementById('fileLink');
                     fileLink.href = `https://cdn.alands.xyz/files/${fileId}?filename=${filename}`;
                     fileLink.textContent = 'View file';
+                    fileLink.classList.remove('hidden');
 
-                    // Show success message
                     document.getElementById('uploadResult').classList.add('show');
                 }
 
                 currentChunkIndex++;
 
-                // Update progress bar
                 const progress = Math.floor((currentChunkIndex / totalChunks) * 100);
                 progressBar.style.width = progress + '%';
                 progressBar.setAttribute('aria-valuenow', progress);
+                snakeLoader.style.backgroundSize = progress + '% 100%';
             }
+
+            snakeLoader.classList.remove('active');
+            uploadButton.classList.remove('hidden');
         });
     </script>
 </body>
