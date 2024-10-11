@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <title>AL Image - Uploader</title>
+    <title>al-upload</title>
     <style>
         body {
             padding-top: 50px;
@@ -71,6 +71,15 @@
         .hidden {
             display: none;
         }
+
+        .file-details {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #007bff;
+            background-color: #e7f3ff;
+            border-radius: 5px;
+        }
     </style>
 </head>
 
@@ -80,7 +89,7 @@
         <form id="uploadForm">
             <div class="form-group">
                 <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="file" name="file" accept="*/*" onchange="displayFileName()" required>
+                    <input type="file" class="custom-file-input" id="file" name="file" accept="*/*" onchange="displayFileDetails()" required>
                     <label class="custom-file-label" for="file">Choose file</label>
                 </div>
                 <span id="fileNameDisplay">No file chosen</span>
@@ -100,6 +109,11 @@
             Upload successful!
         </div>
 
+        <div class="file-details" id="fileDetailsBox">
+            <p><strong>File Name:</strong> <span id="fileDetailsName"></span></p>
+            <p><strong>File Size:</strong> <span id="fileDetailsSize"></span></p>
+        </div>
+
         <a href="https://wa.me/6283899858313" class="whatsapp-link" target="_blank">Contact Me on WhatsApp</a>
     </div>
 
@@ -108,16 +122,35 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
-        // Function to display selected file name
-        function displayFileName() {
+        // Function to display selected file details (name and size)
+        function displayFileDetails() {
             const fileInput = document.getElementById('file');
             const fileNameDisplay = document.getElementById('fileNameDisplay');
+            const fileDetailsBox = document.getElementById('fileDetailsBox');
+            const fileDetailsName = document.getElementById('fileDetailsName');
+            const fileDetailsSize = document.getElementById('fileDetailsSize');
 
             if (fileInput.files.length > 0) {
-                fileNameDisplay.textContent = fileInput.files[0].name;
+                const file = fileInput.files[0];
+                const fileSize = formatFileSize(file.size);
+
+                fileNameDisplay.textContent = file.name;
+                fileDetailsName.textContent = file.name;
+                fileDetailsSize.textContent = fileSize;
+
+                // Show the file details box
+                fileDetailsBox.style.display = 'block';
             } else {
                 fileNameDisplay.textContent = 'No file chosen';
+                fileDetailsBox.style.display = 'none';
             }
+        }
+
+        // Function to format file size into KB, MB, or GB
+        function formatFileSize(size) {
+            const i = Math.floor(Math.log(size) / Math.log(1024));
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            return (size / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i];
         }
 
         // Upload form submission logic
@@ -165,9 +198,10 @@
                     const fileId = result.fileId;
                     const filename = result.filename;
 
+                    // Update the file link
                     fileLink.href = `https://cdn.alands.xyz/files/${fileId}?filename=${filename}`;
                     fileLink.textContent = 'View file';
-                    fileLink.classList.remove('hidden');
+                    fileLink.classList.remove('hidden');  // Show the link only after upload completion
 
                     document.getElementById('uploadResult').classList.add('show');
                 }
