@@ -168,6 +168,7 @@
             const progressBar = document.getElementById('progressBar');
             const fileLink = document.getElementById('fileLink');
 
+            // Hide upload button and show snake loader
             uploadButton.classList.add('hidden');
             snakeLoader.classList.add('active');
 
@@ -215,7 +216,6 @@
             }
 
             snakeLoader.classList.remove('active');
-            uploadButton.classList.remove('hidden');
         });
     </script>
 </body>
